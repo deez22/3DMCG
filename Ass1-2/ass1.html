@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<head>
+    <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'> </script>
+    <link rel='stylesheet' type='text/css' href='http://www.x3dom.org/download/x3dom.css'>
+    </link>
+</head>
+
+
+<html lang="en">
+
+<body>
+    <script>
+        class Triangle {
+            constructor(vertices) {
+                this.vertex_1 = vertices[0];
+                this.vertex_2 = vertices[1];
+                this.vertex_3 = vertices[2];
+            }
+            toString() {
+                return this.vertex_1.toString() + " " + this.vertex_2.toString() + " " + this.vertex_3.toString();
+            }
+        }
+        class Vertex {
+            constructor(x, y, z, color) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            toString() {
+                return this.x.toString() + " " + this.y.toString() + " " + this.z.toString();
+            }
+        }
+        class Color {
+            constructor(r, g, b) {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+            }
+            toString() {
+                return this.r.toString() + " " + this.g.toString() + " " + this.b.toString();
+            }
+        }
+    </script>
+    <script>
+        function buttonPress(){
+            input = readInput();
+            try{
+                addTriangle(input[0]);
+                const diffuse = input[1][0];
+                const specular = input[1][1];
+                const emissive = input[1][2];
+                setMaterial(diffuse, specular, emissive);
+            } catch(err){
+                alert(err);
+            }
+        }
+
+        function readInput(){
+            vertices = [];
+            vertices.push(new Vertex(document.getElementById("v1_1").value, document.getElementById("v1_2").value, document.getElementById("v1_3").value));
+            vertices.push(new Vertex(document.getElementById("v2_1").value, document.getElementById("v2_2").value, document.getElementById("v2_3").value));
+            vertices.push(new Vertex(document.getElementById("v3_1").value, document.getElementById("v3_2").value, document.getElementById("v3_3").value));
+            colors = [];
+            colors.push(new Vertex(document.getElementById("v4_1").value, document.getElementById("v4_2").value, document.getElementById("v4_3").value));
+            colors.push(new Vertex(document.getElementById("v5_1").value, document.getElementById("v5_2").value, document.getElementById("v5_3").value));
+            colors.push(new Vertex(document.getElementById("v6_1").value, document.getElementById("v6_2").value, document.getElementById("v6_3").value));
+            return [vertices, colors];
+        }
+        function addTriangle(vertices) {
+            for (let element of vertices) {
+                updateIndex();
+            }
+            const triangle = new Triangle(vertices);
+            const formatted_string = triangle.toString();
+            try {
+                document.getElementById("Points").point += (formatted_string + " ");
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+        function setMaterial(diffuse, specular, emissive) {
+            try {
+                document.getElementById("Color").diffuseColor = diffuse.toString();
+                document.getElementById("Color").specularColor = specular.toString();
+                document.getElementById("Color").emissiveColor = emissive.toString();
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+    </script>
+    <script>
+        function updateIndex() {
+            var index_raw = document.getElementById("set").index;
+            var index_as_int = [];
+            try {
+                index_as_int = index_raw.split(' ').map(Number);
+            } catch {
+                //initialize index
+                document.getElementById("set").index = "0";
+                return;
+            }
+
+            const max = Math.max.apply(null, index_as_int);
+            index_raw += " " + (max + 1).toString();
+            try {
+                document.getElementById("set").index = index_raw;
+                //alert("Index Updated:" + document.getElementById("set").index + "!");
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+    </script>
+
+
+    <h1>Hello, X3DOM!</h1>
+    <row>
+        <h3>Enter coords for vertex 1: </h1>
+        <input id="v1_1" type="number">
+        <input id="v1_2" type="number">
+        <input id="v1_3" type="number">
+    </row>
+    <row>
+        <h3>Enter coords for vertex 2: </h1>
+        <input id="v2_1" type="number">
+        <input id="v2_2" type="number">
+        <input id="v2_3" type="number">
+    </row>
+    <row>
+        <h3>Enter coords for vertex 3: </h1>
+        <input id="v3_1" type="number">
+        <input id="v3_2" type="number">
+        <input id="v3_3" type="number">
+    </row>
+    <row>
+        <h3>Enter r,g,b for diffuse color: </h1>
+        <input id="v4_1" type="number">
+        <input id="v4_2" type="number">
+        <input id="v4_3" type="number">
+    </row>
+    <row>
+        <h3>Enter r,g,b for specular color: </h1>
+        <input id="v5_1" type="number">
+        <input id="v5_2" type="number">
+        <input id="v5_3" type="number">
+    </row>
+    <row>
+        <h3>Enter r,g,b for emissive color: </h1>
+        <input id="v6_1" type="number">
+        <input id="v6_2" type="number">
+        <input id="v6_3" type="number">
+    </row>
+    <br>
+    <br>
+    <button id="button" onclick="buttonPress()" type="button">Click Me!</button>
+
+    <X3D profile='Interchange' version='3.3' xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance'
+        xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.3.xsd'>
+        <Scene width="500" height="500">
+            <Transform>
+                <Shape>
+                    <Appearance>
+                        <Material id="Color" DEF="MA_redFront" diffuseColor="0.8 0.0 0.0" specularColor="0.401 0.401 0.401" emissiveColor="0.0 0.0 0.0"
+                        ambientIntensity="0.333" shininess="0.098" transparency="0.0" />
+                        </Appearance>  
+                  <IndexedTriangleSet id='set' ccw='true' colorPerVertex='true' index='' solid='false'>
+                    <Coordinate id='Points' DEF='Points' point=""/>
+                </Shape>
+              </Transform>
+        </Scene>
+    </X3D>
+</body>
+
+
+</html>
