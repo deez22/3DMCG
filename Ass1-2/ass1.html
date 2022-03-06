@@ -43,29 +43,32 @@
         }
     </script>
     <script>
-        function buttonPress(){
-            input = readInput();
+        function buttonColorChangePress(){
+            colors = readInputChangeColor();
+            setMaterial(colors[0],colors[1],colors[2]);
+        }
+        function buttonAddPress(){
+            input = readInputAddTriangle();
             try{
-                addTriangle(input[0]);
-                const diffuse = input[1][0];
-                const specular = input[1][1];
-                const emissive = input[1][2];
-                setMaterial(diffuse, specular, emissive);
+                addTriangle(input);
             } catch(err){
                 alert(err);
             }
         }
-
-        function readInput(){
-            vertices = [];
-            vertices.push(new Vertex(document.getElementById("v1_1").value, document.getElementById("v1_2").value, document.getElementById("v1_3").value));
-            vertices.push(new Vertex(document.getElementById("v2_1").value, document.getElementById("v2_2").value, document.getElementById("v2_3").value));
-            vertices.push(new Vertex(document.getElementById("v3_1").value, document.getElementById("v3_2").value, document.getElementById("v3_3").value));
+        function readInputChangeColor(){
             colors = [];
             colors.push(new Vertex(document.getElementById("v4_1").value, document.getElementById("v4_2").value, document.getElementById("v4_3").value));
             colors.push(new Vertex(document.getElementById("v5_1").value, document.getElementById("v5_2").value, document.getElementById("v5_3").value));
             colors.push(new Vertex(document.getElementById("v6_1").value, document.getElementById("v6_2").value, document.getElementById("v6_3").value));
-            return [vertices, colors];
+            return colors;
+        }
+        function readInputAddTriangle(){
+            vertices = [];
+            vertices.push(new Vertex(document.getElementById("v1_1").value, document.getElementById("v1_2").value, document.getElementById("v1_3").value));
+            vertices.push(new Vertex(document.getElementById("v2_1").value, document.getElementById("v2_2").value, document.getElementById("v2_3").value));
+            vertices.push(new Vertex(document.getElementById("v3_1").value, document.getElementById("v3_2").value, document.getElementById("v3_3").value));
+            
+            return vertices;
         }
         function addTriangle(vertices) {
             for (let element of vertices) {
@@ -116,25 +119,35 @@
     </script>
 
 
-    <h1>Hello, X3DOM!</h1>
+<h1>Hello, X3DOM!</h1>
+<div>
+    <h2>Add Triangle:</h2>
     <row>
         <h3>Enter coords for vertex 1: </h1>
-        <input id="v1_1" type="number">
-        <input id="v1_2" type="number">
-        <input id="v1_3" type="number">
+            <input id="v1_1" type="number">
+            <input id="v1_2" type="number">
+            <input id="v1_3" type="number">
     </row>
     <row>
         <h3>Enter coords for vertex 2: </h1>
-        <input id="v2_1" type="number">
-        <input id="v2_2" type="number">
-        <input id="v2_3" type="number">
+            <input id="v2_1" type="number">
+            <input id="v2_2" type="number">
+            <input id="v2_3" type="number">
     </row>
     <row>
         <h3>Enter coords for vertex 3: </h1>
-        <input id="v3_1" type="number">
-        <input id="v3_2" type="number">
-        <input id="v3_3" type="number">
+            <input id="v3_1" type="number">
+            <input id="v3_2" type="number">
+            <input id="v3_3" type="number">
     </row>
+    <br>
+    <br>
+    <button id="buttonAdd" onclick="buttonAddPress()" type="button">Add Triangle!</button>
+</div>
+    <br>
+    <br>
+<div>
+    <h2>Change Color of Structure</h2>
     <row>
         <h3>Enter r,g,b for diffuse color: </h1>
         <input id="v4_1" type="number">
@@ -155,8 +168,10 @@
     </row>
     <br>
     <br>
-    <button id="button" onclick="buttonPress()" type="button">Click Me!</button>
-
+    <button id="buttonColorChange" onclick="buttonColorChangePress()" type="button">Change Color!</button>
+</div>
+    <row>
+    </row>
     <X3D profile='Interchange' version='3.3' xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance'
         xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.3.xsd'>
         <Scene width="500" height="500">

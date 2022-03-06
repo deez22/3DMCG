@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<head>
+    <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'> </script>
+    <link rel='stylesheet' type='text/css' href='http://www.x3dom.org/download/x3dom.css'>
+    </link>
+</head>
+
+
+<html lang="en">
+
+<body>
+    <script>
+        class Triangle {
+            constructor(vertices, color) {
+                this.vertex_1 = vertices[0];
+                this.vertex_2 = vertices[1];
+                this.vertex_3 = vertices[2];
+                this.color = color;
+            }
+            toString() {
+                return this.vertex_1.toString() + " " + this.vertex_2.toString() + " " + this.vertex_3.toString();
+            }
+            getVertices(){
+                return [this.vertex_1, this.vertex_2, this.vertex_3];
+            }
+        }
+        class Vertex {
+            constructor(x, y, z) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            toString() {
+                return this.x.toString() + " " + this.y.toString() + " " + this.z.toString();
+            }
+        }
+        class Color {
+            constructor(r, g, b) {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+            }
+            toString() {
+                return this.r.toString() + " " + this.g.toString() + " " + this.b.toString();
+            }
+        }
+    </script>
+    <script>
+        function buttonColorChangePress(){
+            colors = readInputChangeColor();
+            setMaterial(colors[0],colors[1],colors[2]);
+        }
+        function buttonAddPress(){
+            input = readInputAddTriangle();
+            try{
+                addTriangle(input);
+            } catch(err){
+                alert(err);
+            }
+        }
+        function readInputChangeColor(){
+            colors = [];
+            colors.push(new Vertex(document.getElementById("v4_1").value, document.getElementById("v4_2").value, document.getElementById("v4_3").value));
+            colors.push(new Vertex(document.getElementById("v5_1").value, document.getElementById("v5_2").value, document.getElementById("v5_3").value));
+            colors.push(new Vertex(document.getElementById("v6_1").value, document.getElementById("v6_2").value, document.getElementById("v6_3").value));
+            return colors;
+        }
+        function readInputAddTriangle(){
+            vertices = [];
+            vertices.push(new Vertex(document.getElementById("v1_1").value, document.getElementById("v1_2").value, document.getElementById("v1_3").value));
+            vertices.push(new Vertex(document.getElementById("v2_1").value, document.getElementById("v2_2").value, document.getElementById("v2_3").value));
+            vertices.push(new Vertex(document.getElementById("v3_1").value, document.getElementById("v3_2").value, document.getElementById("v3_3").value));
+            
+            return vertices;
+        }
+    </script>
+    <script>
+       function addTriangle(vertices) {
+           //this works only for part 1 of the task
+            for (let element of vertices) {
+                updateIndex();
+            }
+            const triangle = new Triangle(vertices);
+            const formatted_string = triangle.toString();
+            try {
+                document.getElementById("Points").point += (formatted_string + " ");
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+        function setMaterial(diffuse, specular, emissive) {
+            try {
+                document.getElementById("Color").diffuseColor = diffuse.toString();
+                document.getElementById("Color").specularColor = specular.toString();
+                document.getElementById("Color").emissiveColor = emissive.toString();
+            } catch (err) {
+                alert(err);
+            }
+        }
+
+        function updateIndex(indexedTriangleSet) {
+            //TODO: update this when adding polygons
+            var index_raw = indexedTriangleSet.index;
+            var index_as_int = [];
+            try {
+                index_as_int = index_raw.split(' ').map(Number);
+            } catch {
+                //initialize index
+                indexedTriangleSet.index = "0";
+                return;
+            }
+            if(index_raw === ''){
+                indexedTriangleSet.index = "0";
+                return;
+            }
+            const max = Math.max.apply(null, index_as_int);
+            index_raw += " " + (max + 1).toString();
+            try {
+                indexedTriangleSet.index = index_raw;
+                //alert("Index Updated:" + document.getElementById("set").index + "!");
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+    </script>
+    <script>
+        function initShape(){
+
+        }
+
+
+        function f(){
+            let shape = document.createElement("shape");
+            let appearance = document.createElement("appearance");
+            let material = document.createElement("material");
+            let indexedTriangleSet = document.createElement("IndexedTriangleSet");
+            let coordinate = document.createElement('Coordinate');
+            let builder = new Builder();
+            let block = builder.buildBlock(new Vertex(0,0,0), 1, 1, 3, 0.5, 3);
+
+
+            material.id = "Color",
+            material.setAttribute("diffuseColor", "0 0 1");
+            material.setAttribute("specularColor", "0.401 0.401 0.401");
+            material.setAttribute("emissiveColorColor", "0.1 0.1 0.1");
+            material.setAttribute("transparancy", "0.0");
+            indexedTriangleSet.setAttribute("solid", 'false');
+            indexedTriangleSet.id = 'set';
+            indexedTriangleSet.setAttribute('ccw', 'true');
+            indexedTriangleSet.setAttribute('colorPerVertex', 'true');
+            coordinate.id = 'Points';
+            coordinate.setAttribute('DEF', '');
+            coordinate.setAttribute('point', '');
+            
+            for (let i in block.houses) {
+                const house = block.houses[i];
+                for (let j in house.triangles) {
+                    const triangle = house.triangles[j];
+                    for (let element of triangle.getVertices()) {
+                        updateIndex(indexedTriangleSet);
+                    }
+                    const formatted_string = triangle.toString();
+                    try {
+                        let currentCoords = coordinate.getAttribute('point');
+                        coordinate.setAttribute('point', (currentCoords + formatted_string + " "));
+                        indexedTriangleSet.setAttribute('index', indexedTriangleSet.index);
+                    } catch (err) {
+                        alert(err);
+                    }
+                }
+            }
+
+            //append all elements
+            indexedTriangleSet.appendChild(coordinate);
+            shape.appendChild(indexedTriangleSet);
+            appearance.appendChild(material);
+            shape.appendChild(appearance);
+            document.getElementById("image").appendChild(shape);
+        }
+    </script>
+
+    <!-- Urban Structure-->
+    <script>
+        class UrbanStructure{
+            constructor(blocks, height, width) {
+                this.blocks = blocks;
+                this.height = height;
+                this.width = width;
+            }
+        } 
+        class Block{
+            constructor(position, houses, houseWidth, houseHeight, numberOfHouses, spaceBetweenHouses,housesPerRow){
+                this.position; 
+                this.houseWidth = houseWidth; 
+                this.houseHeight = houseHeight;
+                this.numberOfHouses = numberOfHouses; 
+                this.houses = houses;
+                this.spaceBetweenHouses = spaceBetweenHouses; 
+                this.housesPerRow = housesPerRow
+            }
+        }
+        class House{
+            constructor(height, width, triangles, position){
+                this.position = position;
+                this.triangles = triangles;
+                this.height = height;
+                this.width = width;
+            }
+        }
+
+        class Builder{
+            constructor(){
+                this.groundColor = new Color(0,0,0);
+                this.wallColor = new Color(1,0,0);
+                this.roofColor = new Color(0,0,0);
+            }
+            buildBlock(position, houseWidth, houseHeight, numberOfHouses, spaceBetweenHouses,housesPerRow){
+                let housesInBlock = []
+                for (var i = 0; i < numberOfHouses; i +=1){
+                    const houseToAdd = this.buildHouse(new Vertex(position.x+spaceBetweenHouses*i+i*houseWidth, position.y, position.z), 
+                    houseWidth, houseHeight);
+                    housesInBlock.push(houseToAdd);
+                }
+                return new Block(position, housesInBlock, houseWidth, houseHeight, numberOfHouses, spaceBetweenHouses, 
+                housesPerRow);
+            }
+            buildHouse(position, width, height){
+                let groundTriangles = this.buildGround(position, width);
+                let wallTriangles = this.buildWalls(position, width, height);
+                let roofTriangles = this.buildRoof(position, width, height);
+                groundTriangles.push(...wallTriangles);
+                groundTriangles.push(...roofTriangles);
+                return new House(height, width, groundTriangles, position);
+            }
+            buildRoof(position, width, height){
+                const roofHeight = height * 0.3; 
+                const vertex_1 = new Vertex(position.x, position.y+height, position.z);
+                const vertex_2 = new Vertex(vertex_1.x+width, vertex_1.y, vertex_1.z);
+                const vertex_3 = new Vertex(vertex_1.x+width, vertex_1.y, vertex_1.z+width);
+                const vertex_4 = new Vertex(vertex_1.x, vertex_1.y, vertex_1.z+width);
+                const vertex_5 = new Vertex(vertex_1.x+width*0.5, vertex_1.y+roofHeight, vertex_1.z+width*0.5);
+
+                const triangles = [
+                    new Triangle([vertex_1, vertex_2, vertex_5], this.roofColor),
+                    new Triangle([vertex_1, vertex_4, vertex_5], this.roofColor),
+                    new Triangle([vertex_4, vertex_3, vertex_5], this.roofColor),
+                    new Triangle([vertex_3, vertex_2, vertex_5], this.roofColor),
+                ];
+                return triangles;
+
+            }
+            buildWalls(position, width, height){
+                const vertex_1 = new Vertex(position.x, position.y, position.z+width);
+                const vertex_2 = new Vertex(position.x, position.y+height, position.z+width);
+                const vertex_3 = new Vertex(position.x, position.y+height, position.z);
+                const vertex_4 = new Vertex(position.x+width, position.y, position.z);
+                const vertex_5 = new Vertex(position.x+width, position.y, position.z+width);
+                const vertex_6 = new Vertex(position.x+width, position.y+height, position.z);
+                const vertex_7 = new Vertex(position.x+width, position.y+height, position.z+width);
+
+                const triangles = [
+                    new Triangle([position, vertex_3, vertex_1], this.wallColor),
+                    new Triangle([vertex_3, vertex_2, vertex_1], this.wallColor),
+                    new Triangle([position, vertex_3, vertex_6], this.wallColor),
+                    new Triangle([position, vertex_4, vertex_6], this.wallColor),
+                    new Triangle([vertex_4, vertex_6, vertex_7], this.wallColor),
+                    new Triangle([vertex_5, vertex_4, vertex_7], this.wallColor),
+                    new Triangle([vertex_7, vertex_2, vertex_5], this.wallColor),
+                    new Triangle([vertex_1, vertex_2, vertex_5], this.wallColor)
+                ];
+                return triangles;
+            }
+            buildGround(position, width){
+                const vertex_1 = new Vertex(position.x+width, position.y, position.z);
+                const vertex_2 = new Vertex(position.x, position.y, position.z+width);
+                const vertex_3 = new Vertex(position.x+width, position.y, position.z+width);
+                const triangles = [new Triangle([position, vertex_1, vertex_3], this.groundColor), new Triangle([position, vertex_2, vertex_3], this.groundColor)];
+                return triangles;
+            }
+        }
+
+        
+
+    </script>
+ 
+<h1>Hello, X3DOM!</h1>
+    <button id="buttonGenerate" onclick="f()" type="button">Generate Structure!</button>
+    <X3D profile='Interchange' version='3.3' xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance'
+        xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.3.xsd'>
+        <Scene width="500" height="500">
+            <Transform id="image">
+                
+            </Transform>
+        </Scene>
+    </X3D>
+</body>
+
+
+</html>
