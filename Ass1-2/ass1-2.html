@@ -127,24 +127,34 @@
         }
     </script>
     <script>
-        function initShape(){
+        function generateRandomCity(){
 
-        }
+            document.getElementById("set")?.remove();
 
 
-        function f(){
+            //init all necessary elements
             let shape = document.createElement("shape");
             let appearance = document.createElement("appearance");
             let material = document.createElement("material");
             let indexedTriangleSet = document.createElement("IndexedTriangleSet");
             let coordinate = document.createElement('Coordinate');
             let builder = new Builder();
-            let block = builder.buildBlock(new Vertex(0,0,0), 1, 1, 3, 0.5, 3);
+            
+            
+            //generate city and color
+            document.getElementById("scene").setAttribute("background",  "background:#000 url(http://www.x3dom.org/x3dom/example/texture/solarSystem/starsbg.png)")
+            const numberOfBlocks = Math.floor(Math.random() * (20 - 10 + 1) + 10);
+            const blocksPerRow = Math.floor(Math.random() * (7 - 3 + 1) + 3);
+            const housesPerBlock = Math.floor(Math.random() * (15 - 7 + 1) + 7);
+            const housesPerRow = Math.floor(Math.random() * (7 - 3 + 1) + 3);
+            let city = builder.buildUrbanStructure(new Vertex(0,0,0),numberOfBlocks,blocksPerRow, housesPerBlock, 2, housesPerRow);
+            const color = Math.random().toString() + " " + Math.random().toString() + " " + Math.random().toString();
+
 
 
             material.id = "Color",
-            material.setAttribute("diffuseColor", "0 0 1");
-            material.setAttribute("specularColor", "0.401 0.401 0.401");
+            material.setAttribute("diffuseColor", color);
+            material.setAttribute("specularColor", color);
             material.setAttribute("emissiveColorColor", "0.1 0.1 0.1");
             material.setAttribute("transparancy", "0.0");
             indexedTriangleSet.setAttribute("solid", 'false');
@@ -154,25 +164,27 @@
             coordinate.id = 'Points';
             coordinate.setAttribute('DEF', '');
             coordinate.setAttribute('point', '');
-            
-            for (let i in block.houses) {
-                const house = block.houses[i];
-                for (let j in house.triangles) {
-                    const triangle = house.triangles[j];
-                    for (let element of triangle.getVertices()) {
-                        updateIndex(indexedTriangleSet);
-                    }
-                    const formatted_string = triangle.toString();
-                    try {
-                        let currentCoords = coordinate.getAttribute('point');
-                        coordinate.setAttribute('point', (currentCoords + formatted_string + " "));
-                        indexedTriangleSet.setAttribute('index', indexedTriangleSet.index);
-                    } catch (err) {
-                        alert(err);
+
+            for (let k in city.blocks) {
+                const block = city.blocks[k];
+                for (let i in block.houses) {
+                    const house = block.houses[i];
+                    for (let j in house.triangles) {
+                        const triangle = house.triangles[j];
+                        for (let element of triangle.getVertices()) {
+                            updateIndex(indexedTriangleSet);
+                        }
+                        const formatted_string = triangle.toString();
+                        try {
+                            let currentCoords = coordinate.getAttribute('point');
+                            coordinate.setAttribute('point', (currentCoords + formatted_string + " "));
+                            indexedTriangleSet.setAttribute('index', indexedTriangleSet.index);
+                        } catch (err) {
+                            alert(err);
+                        }
                     }
                 }
             }
-
             //append all elements
             indexedTriangleSet.appendChild(coordinate);
             shape.appendChild(indexedTriangleSet);
@@ -185,10 +197,8 @@
     <!-- Urban Structure-->
     <script>
         class UrbanStructure{
-            constructor(blocks, height, width) {
+            constructor(blocks) {
                 this.blocks = blocks;
-                this.height = height;
-                this.width = width;
             }
         } 
         class Block{
@@ -217,12 +227,43 @@
                 this.wallColor = new Color(1,0,0);
                 this.roofColor = new Color(0,0,0);
             }
+
+            buildUrbanStructure(position, numberOfBlocks, blockPerRow, housesPerBlock, spaceBetweenBlocks, housesPerRowInBlock){
+                let builder = new Builder();
+                let blocksInStructure = [];
+                let currentRow = 0; 
+                let currentCol = 0;
+                let houseHeight = 1; 
+                let houseWidth = 1;
+            
+                for (var i = 0; i < numberOfBlocks; i++){
+                    if((i % blockPerRow) === 0) currentRow += 1, currentCol=0; 
+                    let blockWidth = housesPerRowInBlock * houseWidth;
+                    const block = builder.buildBlock(new Vertex(position.x+spaceBetweenBlocks*currentCol+currentCol*blockWidth, position.y, 
+                                                        position.z+spaceBetweenBlocks*currentRow+blockWidth*currentRow)
+                                        , houseWidth, houseHeight, housesPerBlock, 0.5, housesPerRowInBlock);
+                    blocksInStructure.push(block);
+                    currentCol += 1;
+                }
+                
+                return new UrbanStructure(blocksInStructure);
+
+            }
+
             buildBlock(position, houseWidth, houseHeight, numberOfHouses, spaceBetweenHouses,housesPerRow){
                 let housesInBlock = []
+                
+                let currentRow = 0; 
+                let currentCol = 0; 
                 for (var i = 0; i < numberOfHouses; i +=1){
-                    const houseToAdd = this.buildHouse(new Vertex(position.x+spaceBetweenHouses*i+i*houseWidth, position.y, position.z), 
+                    
+                    if((i % housesPerRow) === 0) currentRow += 1, currentCol=0; 
+
+                    const houseToAdd = this.buildHouse(new Vertex(position.x+spaceBetweenHouses*currentCol+currentCol*houseWidth, position.y, 
+                                                        position.z+houseWidth*spaceBetweenHouses*currentRow+houseWidth*currentRow), 
                     houseWidth, houseHeight);
                     housesInBlock.push(houseToAdd);
+                    currentCol += 1;
                 }
                 return new Block(position, housesInBlock, houseWidth, houseHeight, numberOfHouses, spaceBetweenHouses, 
                 housesPerRow);
@@ -287,10 +328,11 @@
     </script>
  
 <h1>Hello, X3DOM!</h1>
-    <button id="buttonGenerate" onclick="f()" type="button">Generate Structure!</button>
+    <button id="buttonGenerate" onclick="generateRandomCity()" type="button">Generate Structure!</button>
     <X3D profile='Interchange' version='3.3' xmlns:xsd='http://www.w3.org/2001/XMLSchema-instance'
         xsd:noNamespaceSchemaLocation='http://www.web3d.org/specifications/x3d-3.3.xsd'>
-        <Scene width="500" height="500">
+        <Scene width="500" height="500" id="scene"  background="1 0 0">
+            <Viewpoint id="front" position="-3.21556 6.33297 4.17674" orientation="0.07285 0.95840 0.27598 3.93887" description="camera"></Viewpoint>
             <Transform id="image">
                 
             </Transform>
